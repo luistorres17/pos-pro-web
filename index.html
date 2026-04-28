@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS Chrome - Punto de Venta Premium</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <meta name="theme-color" content="#1e1e2f">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>POS<span>Pro</span></h2>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-tab="ventas">🛍️ Ventas</li>
+                <li data-tab="inventario">📦 Inventario</li>
+                <li data-tab="devoluciones">🔄 Devoluciones</li>
+                <li data-tab="historial">📊 Historial</li>
+                <li data-tab="clientes" id="nav-clientes">👥 Clientes</li>
+                <li data-tab="configuracion">⚙️ Configuración</li>
+            </ul>
+            <div class="sidebar-footer">
+                <p id="db-status">Cargando BD...</p>
+                <div id="network-status" class="status-indicator online">
+                    <span class="dot"></span> <span id="network-text">Conectado</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Ventas Tab -->
+            <section id="ventas" class="tab-content active">
+                <header class="flex-header">
+                    <h1 style="white-space: nowrap;">Caja Registradora</h1>
+                    <div id="current-customer-banner" class="customer-banner hidden" style="margin: 0 1.5rem; flex: 1; padding: 0.5rem 1rem; margin-bottom: 0;">
+                        <div class="customer-info" style="display: flex; align-items: center; gap: 1rem;">
+                            <span><strong>Cliente: </strong> <span id="cc-name">Público en General</span></span>
+                            <span class="cc-points badge badge-success hidden">Puntos: <span id="cc-points-val">0</span></span>
+                        </div>
+                        <button id="btn-remove-customer" class="btn-sm btn-danger hidden">✖</button>
+                    </div>
+                    <div class="barcode-search">
+                        <input type="text" id="barcode-input" placeholder="🔍 Escanear Código de Barras o Tarjeta de Cliente" autofocus>
+                    </div>
+                </header>
+                <div class="pos-layout">
+                    <div class="products-grid" id="pos-products">
+                        <!-- Products will be dynamically loaded here -->
+                    </div>
+                    <div class="cart-section glass-panel">
+                        <h2>Carrito</h2>
+                        <ul id="cart-items" class="cart-items">
+                            <!-- Cart items here -->
+                        </ul>
+                        <div class="cart-summary">
+                            <div class="summary-row">
+                                <span>Total</span>
+                                <span id="cart-total" class="total-price">$0.00</span>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label style="font-size: 0.9rem;">Método de Pago</label>
+                                <select id="payment-method">
+                                    <option value="efectivo">💵 Efectivo</option>
+                                    <option value="tarjeta">💳 Tarjeta</option>
+                                    <option value="transferencia">🏦 Transferencia</option>
+                                </select>
+                            </div>
+                            <div class="print-option" style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">
+                                <input type="checkbox" id="print-ticket" checked>
+                                <label for="print-ticket">🖨️ Imprimir ticket (Térmica)</label>
+                            </div>
+                            <button id="btn-checkout" class="btn-primary btn-block">Completar Venta</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Inventario Tab -->
+            <section id="inventario" class="tab-content">
+                <header class="flex-header">
+                    <h1>Inventario</h1>
+                    <button id="btn-add-product" class="btn-primary">+ Nuevo Producto</button>
+                </header>
+                <div class="table-container glass-panel">
+                    <table id="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Costo</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Inventory items here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Devoluciones Tab -->
+            <section id="devoluciones" class="tab-content">
+                <header>
+                    <h1>Devoluciones</h1>
+                </header>
+                <div class="glass-panel search-sale">
+                    <input type="number" id="return-sale-id" placeholder="ID de Venta">
+                    <button id="btn-search-sale" class="btn-secondary">Buscar Venta</button>
+                </div>
+                <div id="return-details" class="return-details glass-panel hidden">
+                    <h3>Detalles de la Venta #<span id="ret-sale-id-display"></span></h3>
+                    <ul id="return-items-list" class="cart-items">
+                        <!-- Items of the sale to return -->
+                    </ul>
+                    <button id="btn-process-return" class="btn-danger btn-block" style="margin-top:1rem;">Procesar Devolución</button>
+                </div>
+            </section>
+
+            <!-- Historial Tab -->
+            <section id="historial" class="tab-content">
+                <header>
+                    <h1>Historial de Ventas</h1>
+                </header>
+                <div class="table-container glass-panel">
+                    <table id="history-table">
+                        <thead>
+                            <tr>
+                                <th>ID Venta</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Sales history items here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Clientes Tab -->
+            <section id="clientes" class="tab-content">
+                <header class="flex-header">
+                    <h1>Directorio de Clientes</h1>
+                    <button id="btn-add-customer" class="btn-primary">+ Nuevo Cliente</button>
+                </header>
+                <div class="table-container glass-panel">
+                    <table id="customers-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Código / Tarjeta</th>
+                                <th>Nombre</th>
+                                <th>Puntos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Customers items here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Configuración Tab -->
+            <section id="configuracion" class="tab-content">
+                <header>
+                    <h1>Configuración</h1>
+                </header>
+                <div class="settings-grid">
+                    <div class="glass-panel settings-card">
+                        <h3>Personalización</h3>
+                        <div class="form-group">
+                            <label>Nombre de la Tienda (Recibos)</label>
+                            <input type="text" id="setting-store-name" value="POS Pro">
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem; margin-bottom: 1rem;">
+                            <input type="checkbox" id="setting-enable-customers" checked>
+                            <label for="setting-enable-customers" style="margin-bottom:0;">Activar Módulo de Clientes (Puntos)</label>
+                        </div>
+                        <div class="form-group" id="points-multiplier-group">
+                            <label>Puntos generados por cada $1 gastado</label>
+                            <input type="number" id="setting-points-multiplier" step="0.01" value="0.10" placeholder="Ej. 0.10 = 1 punto cada $10">
+                            <small style="color: var(--text-muted); font-size: 0.8rem;">Ejemplo: 0.10 significa 1 punto por cada $10 pesos.</small>
+                        </div>
+                        <div class="form-group" id="points-value-group">
+                            <label>Valor en dinero de 1 punto al pagar ($)</label>
+                            <input type="number" id="setting-points-value" step="0.01" value="0.10" placeholder="Ej. 0.10">
+                            <small style="color: var(--text-muted); font-size: 0.8rem;">Ejemplo: 0.10 significa que 100 puntos = $10 pesos de descuento.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-panel settings-card">
+                        <h3>Seguridad</h3>
+                        <div class="form-group">
+                            <label>PIN de Administrador</label>
+                            <input type="password" id="setting-admin-pin" placeholder="Dejar en blanco para desactivar">
+                            <small style="color: var(--text-muted); font-size: 0.8rem;">Si estableces un PIN, se solicitará al intentar acceder a Inventario, Historial, Clientes y Configuración. La Caja Registradora siempre estará libre.</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Tema Visual</label>
+                            <select id="setting-theme">
+                                <option value="dark">🌙 Oscuro</option>
+                                <option value="light">☀️ Claro</option>
+                            </select>
+                        </div>
+                        <button id="btn-save-settings" class="btn-primary" style="margin-top: 1rem;">Guardar Cambios</button>
+                    </div>
+
+                    <div class="glass-panel settings-card">
+                        <h3>Base de Datos y Sistema</h3>
+                        <p style="font-size: 0.9rem; margin-bottom: 1rem;">La base de datos se guarda localmente. Es recomendable hacer respaldos.</p>
+                        <button id="btn-backup-db" class="btn-secondary btn-block">💾 Respaldar Base de Datos</button>
+                        
+                        <h4 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Actualizaciones (OTA)</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Versión actual: v1.0.0</p>
+                        <button id="btn-check-updates" class="btn-primary btn-block">🔍 Buscar Actualización en GitHub</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="product-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <h2 id="modal-title">Agregar Producto</h2>
+            <form id="product-form">
+                <input type="hidden" id="prod-id">
+                <div class="form-group">
+                    <label>Código de Barras</label>
+                    <input type="text" id="prod-barcode">
+                </div>
+                <div class="form-group">
+                    <label>Nombre del Producto</label>
+                    <input type="text" id="prod-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Costo de Compra ($)</label>
+                    <input type="number" id="prod-cost" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Precio Venta Público ($)</label>
+                    <input type="number" id="prod-price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Stock Inicial</label>
+                    <input type="number" id="prod-stock" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="btn-cancel-modal">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Customer Modal -->
+    <div id="customer-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <h2 id="customer-modal-title">Agregar Cliente</h2>
+            <form id="customer-form">
+                <input type="hidden" id="cust-id">
+                <div class="form-group">
+                    <label>Código de Barras / Tarjeta / Teléfono</label>
+                    <input type="text" id="cust-barcode" required>
+                </div>
+                <div class="form-group">
+                    <label>Nombre del Cliente</label>
+                    <input type="text" id="cust-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Puntos Actuales</label>
+                    <input type="number" id="cust-points" step="0.01" value="0">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="btn-cancel-customer-modal">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <svg id="barcode-temp" style="display: none;"></svg>
+
+    <script src="db.js" type="module"></script>
+    <script src="app.js" type="module"></script>
+    <script>
+        let newWorker;
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').then(reg => {
+                console.log('Service Worker Registered');
+                
+                reg.addEventListener('updatefound', () => {
+                    newWorker = reg.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            if (confirm('Hay una nueva versión disponible. ¿Deseas actualizar ahora?')) {
+                                newWorker.postMessage({ type: 'SKIP_WAITING' });
+                            }
+                        }
+                    });
+                });
+            });
+
+            let refreshing;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (refreshing) return;
+                window.location.reload();
+                refreshing = true;
+            });
+        }
+    </script>
+</body>
+</html>

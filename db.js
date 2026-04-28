@@ -216,4 +216,19 @@ export class POSDatabase {
         stmt.free();
         return results;
     }
+
+    async importFromBuffer(uInt8Array) {
+        try {
+            if (this.db) {
+                this.db.close();
+            }
+            this.db = new this.SQL.Database(uInt8Array);
+            await this.saveToIndexedDB();
+            this.runMigrations(); // Ensure schema is up to date
+            return true;
+        } catch (error) {
+            console.error("Import DB Error:", error);
+            throw new Error("El archivo no es una base de datos válida o está corrupto.");
+        }
+    }
 }

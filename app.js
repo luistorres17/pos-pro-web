@@ -793,5 +793,69 @@ document.getElementById('btn-check-updates').addEventListener('click', () => {
     }
 });
 
+// --- IMPORT / EXPORT CONFIG ---
+document.getElementById('btn-export-config').addEventListener('click', () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appSettings, null, 2));
+    const a = document.createElement('a');
+    a.href = dataStr;
+    a.download = `pos_config_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+});
+
+const btnImportConfig = document.getElementById('btn-import-config');
+const inputImportConfig = document.getElementById('input-import-config');
+
+if (btnImportConfig) {
+    btnImportConfig.addEventListener('click', () => inputImportConfig.click());
+    
+    inputImportConfig.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const importedSettings = JSON.parse(event.target.result);
+                if (importedSettings && typeof importedSettings === 'object') {
+                    appSettings = { ...appSettings, ...importedSettings };
+                    localStorage.setItem('pos_settings', JSON.stringify(appSettings));
+                    alert('Configuración importada exitosamente. La página se recargará.');
+                    window.location.reload();
+                }
+            } catch (err) {
+                alert('Error al leer el archivo de configuración. Asegúrate de que sea un JSON válido.');
+            }
+        };
+        reader.readAsText(file);
+    });
+}
+
+// --- IMPORT DB ---
+const btnImportDb = document.getElementById('btn-import-db');
+const inputImportDb = document.getElementById('input-import-db');
+
+if (btnImportDb) {
+    btnImportDb.addEventListener('click', () => inputImportDb.click());
+    
+    inputImportDb.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (confirm('ADVERTENCIA: Esto sobrescribirá completamente tu inventario, ventas y clientes actuales con los datos del archivo subido. ¿Estás seguro de continuar?')) {
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const uInt8Array = new Uint8Array(event.target.result);
+                    await db.importFromBuffer(uInt8Array);
+                    alert('Base de Datos restaurada con éxito. La página se recargará.');
+                    window.location.reload();
+                } catch (err) {
+                    alert('Error al restaurar la base de datos: ' + err.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        e.target.value = ''; // reset
+    });
+}
+
 // Run App
 window.onload = initApp;

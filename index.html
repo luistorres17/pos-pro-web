@@ -219,13 +219,28 @@
                     </div>
 
                     <div class="glass-panel settings-card">
-                        <h3>Base de Datos y Sistema</h3>
-                        <p style="font-size: 0.9rem; margin-bottom: 1rem;">La base de datos se guarda localmente. Es recomendable hacer respaldos.</p>
-                        <button id="btn-backup-db" class="btn-secondary btn-block">💾 Respaldar Base de Datos</button>
+                        <h3>Respaldos y Migración</h3>
+                        <p style="font-size: 0.9rem; margin-bottom: 1rem; color: var(--text-muted);">Usa estas opciones para respaldar tu información o pasarla a otra computadora.</p>
                         
-                        <h4 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Actualizaciones (OTA)</h4>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Versión actual: v1.0.0</p>
-                        <button id="btn-check-updates" class="btn-primary btn-block">🔍 Buscar Actualización en GitHub</button>
+                        <h4 style="margin-top: 1rem; margin-bottom: 0.5rem; font-size: 1rem;">1. Configuración Visual (Preferencias)</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                            <button id="btn-export-config" class="btn-secondary">⬇️ Exportar Config</button>
+                            <button id="btn-import-config" class="btn-secondary">⬆️ Importar Config</button>
+                            <input type="file" id="input-import-config" accept=".json" style="display: none;">
+                        </div>
+
+                        <h4 style="margin-bottom: 0.5rem; font-size: 1rem;">2. Base de Datos (Inventario, Ventas, Clientes)</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                            <button id="btn-backup-db" class="btn-secondary">⬇️ Exportar BD</button>
+                            <button id="btn-import-db" class="btn-secondary">⬆️ Importar BD</button>
+                            <input type="file" id="input-import-db" accept=".sqlite" style="display: none;">
+                        </div>
+                        
+                        <hr style="border-color: var(--glass-border); margin-bottom: 1.5rem;">
+                        
+                        <h4 style="margin-bottom: 0.5rem; font-size: 1rem;">Actualizaciones (OTA)</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">El sistema busca actualizaciones en 2º plano. También puedes forzar la búsqueda aquí.</p>
+                        <button id="btn-check-updates" class="btn-primary btn-block">🔍 Buscar Actualización</button>
                     </div>
                 </div>
             </section>

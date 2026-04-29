@@ -144,6 +144,15 @@ function applyFeatures() {
             adContainer.classList.add('hidden');
         } else {
             adContainer.classList.remove('hidden');
+            // Cargar Google AdSense solo si no es premium y no se ha cargado ya
+            if (!window.adsByGoogleLoaded) {
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4453683368941401";
+                script.crossOrigin = "anonymous";
+                document.head.appendChild(script);
+                window.adsByGoogleLoaded = true;
+            }
         }
     }
 }

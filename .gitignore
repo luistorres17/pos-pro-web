@@ -1,0 +1,9 @@
+# Archivos privados
+keygen.html
+
+# Node / Dependencias
+node_modules/
+
+# Archivos de SO
+.DS_Store
+Thumbs.db

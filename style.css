@@ -257,6 +257,43 @@ header {
     border-bottom: 1px solid var(--glass-border);
 }
 
+/* Ads */
+.ad-container {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    margin-top: auto;
+    border: 1px solid var(--primary);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.ad-slot {
+    flex: 1;
+    text-align: center;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.custom-ad {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.custom-ad:hover {
+    transform: scale(1.02);
+}
+
+.custom-ad h4 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.custom-ad p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
 .cart-item-info h4 {
     font-size: 1rem;
 }

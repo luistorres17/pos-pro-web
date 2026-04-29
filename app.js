@@ -7,7 +7,7 @@ let cart = [];
 let currentProducts = [];
 let currentCustomer = null;
 let isAdminAuth = false;
-let appSettings = { storeName: 'POS Pro', theme: 'dark', enableCustomers: true, pointsMultiplier: 0.1, pointsValue: 1.0, adminPin: '' };
+let appSettings = { storeName: 'POS Pro', theme: 'dark', enableCustomers: true, pointsMultiplier: 0.1, pointsValue: 1.0, adminPin: '', licenseKey: '' };
 
 // Elements
 const tabs = document.querySelectorAll('.nav-links li');
@@ -40,6 +40,9 @@ const settingEnableCustomers = document.getElementById('setting-enable-customers
 const settingPointsMultiplier = document.getElementById('setting-points-multiplier');
 const settingPointsValue = document.getElementById('setting-points-value');
 const settingAdminPin = document.getElementById('setting-admin-pin');
+const settingLicenseKey = document.getElementById('setting-license-key');
+const licenseStatus = document.getElementById('license-status');
+const adContainer = document.getElementById('ad-container');
 
 // Returns Elements
 const returnSaleIdInput = document.getElementById('return-sale-id');
@@ -89,8 +92,39 @@ function loadSettings() {
     if (settingAdminPin) {
         settingAdminPin.value = appSettings.adminPin || '';
     }
+    if (settingLicenseKey) {
+        settingLicenseKey.value = appSettings.licenseKey || '';
+        if (licenseStatus) {
+            licenseStatus.innerText = isPremium() ? "Estado: Versión Premium (Sin Anuncios)" : "Estado: Versión Gratuita (Con Anuncios)";
+            licenseStatus.style.color = isPremium() ? "var(--success)" : "var(--text-muted)";
+        }
+    }
     applyTheme();
     applyFeatures();
+}
+
+function isPremium() {
+    if (!appSettings.licenseKey || appSettings.licenseKey.length !== 19) return false;
+    
+    // Validar formato AAAA-BBBB-CCCC-DDDD
+    const parts = appSettings.licenseKey.split('-');
+    if (parts.length !== 4) return false;
+    
+    const fullKey = parts.join('');
+    if (fullKey.length !== 16) return false;
+    
+    const keyBase = fullKey.slice(0, 12);
+    const expectedChecksum = fullKey.slice(12, 16);
+    
+    let sum = 0;
+    for(let i = 0; i < keyBase.length; i++) {
+        sum += keyBase.charCodeAt(i);
+    }
+    
+    let checksumStr = (sum * 88).toString(16).toUpperCase();
+    checksumStr = checksumStr.padStart(4, '0').slice(-4);
+    
+    return checksumStr === expectedChecksum;
 }
 
 function applyFeatures() {
@@ -102,6 +136,15 @@ function applyFeatures() {
         navClientes.style.display = 'none';
         currentCustomerBanner.classList.add('hidden');
         clearCurrentCustomer();
+    }
+    
+    // Ads / Premium Logic
+    if (adContainer) {
+        if (isPremium()) {
+            adContainer.classList.add('hidden');
+        } else {
+            adContainer.classList.remove('hidden');
+        }
     }
 }
 
@@ -757,9 +800,18 @@ document.getElementById('btn-save-settings').addEventListener('click', () => {
     if (settingAdminPin) {
         appSettings.adminPin = settingAdminPin.value;
     }
+    if (settingLicenseKey) {
+        appSettings.licenseKey = settingLicenseKey.value.trim().toUpperCase();
+    }
     localStorage.setItem('pos_settings', JSON.stringify(appSettings));
     applyTheme();
     applyFeatures();
+    
+    if (licenseStatus) {
+        licenseStatus.innerText = isPremium() ? "Estado: Versión Premium (Sin Anuncios)" : "Estado: Versión Gratuita (Con Anuncios)";
+        licenseStatus.style.color = isPremium() ? "var(--success)" : "var(--text-muted)";
+    }
+    
     alert('Configuración guardada exitosamente');
 });
 

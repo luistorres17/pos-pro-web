@@ -52,9 +52,28 @@
                     </div>
                 </header>
                 <div class="pos-layout">
-                    <div class="products-grid" id="pos-products">
-                        <!-- Products will be dynamically loaded here -->
+                    <div style="display: flex; flex-direction: column; gap: 1rem; overflow: hidden;">
+                        <div class="products-grid" id="pos-products" style="flex: 1;">
+                            <!-- Products will be dynamically loaded here -->
+                        </div>
+                        
+                        <!-- AD CONTAINER -->
+                        <div id="ad-container" class="ad-container glass-panel">
+                            <div class="ad-slot custom-ad" onclick="window.open('https://example.com/terminales', '_blank')">
+                                <span style="font-size: 0.7rem; color: #94a3b8; display: block; margin-bottom: 5px;">PUBLICIDAD</span>
+                                <h4>🛒 Adquiere Equipo POS Oficial</h4>
+                                <p>Mejora tu tienda con nuestras terminales, lectores y cajones de dinero. ¡Precios especiales!</p>
+                            </div>
+                            <div class="ad-slot adsense-ad">
+                                <span style="font-size: 0.7rem; color: #94a3b8; display: block; margin-bottom: 5px;">PUBLICIDAD</span>
+                                <!-- Aquí irá el script de Google AdSense en el futuro -->
+                                <div style="width: 100%; height: 60px; background: rgba(0,0,0,0.1); border: 1px dashed var(--glass-border); display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                                    Espacio reservado para Google AdSense
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    
                     <div class="cart-section glass-panel">
                         <h2>Carrito</h2>
                         <ul id="cart-items" class="cart-items">
@@ -202,8 +221,13 @@
                     </div>
                     
                     <div class="glass-panel settings-card">
-                        <h3>Seguridad</h3>
+                        <h3>Seguridad y Licencia</h3>
                         <div class="form-group">
+                            <label>Clave de Activación (Licencia)</label>
+                            <input type="text" id="setting-license-key" placeholder="Ej. AAAA-BBBB-CCCC-DDDD" style="text-transform: uppercase;">
+                            <small id="license-status" style="color: var(--text-muted); font-size: 0.8rem; font-weight: bold; margin-top: 5px; display: block;">Estado: Versión Gratuita (Con Anuncios)</small>
+                        </div>
+                        <div class="form-group" style="margin-top: 1.5rem;">
                             <label>PIN de Administrador</label>
                             <input type="password" id="setting-admin-pin" placeholder="Dejar en blanco para desactivar">
                             <small style="color: var(--text-muted); font-size: 0.8rem;">Si estableces un PIN, se solicitará al intentar acceder a Inventario, Historial, Clientes y Configuración. La Caja Registradora siempre estará libre.</small>

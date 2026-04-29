@@ -265,6 +265,8 @@ header {
     margin-top: auto;
     border: 1px solid var(--primary);
     background: rgba(99, 102, 241, 0.05);
+    height: 140px; /* Altura fija para estabilidad */
+    flex-shrink: 0; /* Evita que se aplaste */
 }
 
 .ad-slot {

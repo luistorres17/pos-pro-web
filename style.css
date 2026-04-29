@@ -265,13 +265,25 @@ header {
     margin-top: auto;
     border: 1px solid var(--primary);
     background: rgba(99, 102, 241, 0.05);
+    min-height: 120px; /* Asegura espacio constante */
+    max-height: 150px;
+    overflow: hidden;
 }
 
 .ad-slot {
     flex: 1;
     text-align: center;
     border-radius: 8px;
-    padding: 1rem;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.ad-slot ins {
+    margin: 0 auto;
+    max-width: 100%;
 }
 
 .custom-ad {

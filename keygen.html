@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Licencias - POS Pro Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --panel: #1e293b;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --border: #334155;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--panel);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+        }
+
+        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--primary); }
+        p { color: var(--text-muted); margin-bottom: 2rem; }
+
+        /* Login Screen */
+        #login-section { text-align: center; }
+        .form-group { margin-bottom: 1.5rem; text-align: left; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        button:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Admin Dashboard */
+        #admin-dashboard { display: none; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .btn-logout { width: auto; background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+        .btn-logout:hover { background: #ef4444; color: white; border-color: #ef4444; }
+
+        .gen-box {
+            background: #0f172a;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .result-key {
+            font-family: monospace;
+            font-size: 1.4rem;
+            color: var(--success);
+            background: #064e3b;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 1rem;
+            letter-spacing: 2px;
+            display: none;
+            border: 1px solid #065f46;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        th, td { text-align: left; padding: 1rem; border-bottom: 1px solid var(--border); }
+        th { color: var(--text-muted); font-weight: 500; }
+        .key-cell { font-family: monospace; color: var(--success); }
+
+        .hidden { display: none !important; }
+        
+        .error-msg {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- SECCIÓN LOGIN -->
+        <div id="login-section">
+            <h1>Acceso Admin</h1>
+            <p>Ingresa la contraseña maestra para gestionar licencias.</p>
+            <div id="login-error" class="error-msg">Contraseña incorrecta</div>
+            <div class="form-group">
+                <label>Contraseña Maestra</label>
+                <input type="password" id="admin-pass" placeholder="••••••••">
+            </div>
+            <button id="btn-login">Entrar al Panel</button>
+        </div>
+
+        <!-- SECCIÓN DASHBOARD -->
+        <div id="admin-dashboard">
+            <div class="header-actions">
+                <div>
+                    <h1 style="margin:0;">Generador Pro</h1>
+                    <span style="color: var(--text-muted); font-size: 0.8rem;">Vercel Secure Backend</span>
+                </div>
+                <button class="btn-logout" id="btn-logout">Cerrar Sesión</button>
+            </div>
+
+            <div class="gen-box">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Nombre del Cliente o Empresa</label>
+                    <input type="text" id="client-name" placeholder="Ej: Tienda 'Don Pepe'">
+                </div>
+                <button id="btn-generate">Generar Licencia y Guardar</button>
+                <div id="result-key" class="result-key"></div>
+            </div>
+
+            <h3>Historial de Licencias</h3>
+            <div style="overflow-x: auto;">
+                <table id="history-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Clave</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body">
+                        <!-- Se llenará dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let masterPassword = '';
+
+        const loginSection = document.getElementById('login-section');
+        const adminDashboard = document.getElementById('admin-dashboard');
+        const adminPassInput = document.getElementById('admin-pass');
+        const btnLogin = document.getElementById('btn-login');
+        const loginError = document.getElementById('login-error');
+
+        const btnGenerate = document.getElementById('btn-generate');
+        const clientNameInput = document.getElementById('client-name');
+        const resultKey = document.getElementById('result-key');
+        const historyBody = document.getElementById('history-body');
+
+        // Función para cargar historial
+        async function loadHistory() {
+            try {
+                const res = await fetch('/api/keys', {
+                    headers: { 'Authorization': `Bearer ${masterPassword}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    renderHistory(data);
+                }
+            } catch (e) { console.error("Error cargando historial", e); }
+        }
+
+        function renderHistory(licenses) {
+            historyBody.innerHTML = '';
+            // Invertir para ver las más nuevas primero
+            [...licenses].reverse().forEach(lic => {
+                const row = document.createElement('tr');
+                const date = new Date(lic.date).toLocaleDateString();
+                row.innerHTML = `
+                    <td>${lic.client}</td>
+                    <td class="key-cell">${lic.key}</td>
+                    <td>${date}</td>
+                `;
+                historyBody.appendChild(row);
+            });
+        }
+
+        // Evento Login
+        btnLogin.addEventListener('click', async () => {
+            const pass = adminPassInput.value;
+            if (!pass) return;
+
+            btnLogin.disabled = true;
+            // Intentamos una petición GET para validar la clave
+            const res = await fetch('/api/keys', {
+                headers: { 'Authorization': `Bearer ${pass}` }
+            });
+
+            if (res.ok) {
+                masterPassword = pass;
+                loginSection.classList.add('hidden');
+                adminDashboard.style.display = 'block';
+                loadHistory();
+            } else {
+                loginError.style.display = 'block';
+                setTimeout(() => { loginError.style.display = 'none'; }, 3000);
+            }
+            btnLogin.disabled = false;
+        });
+
+        // Evento Generar
+        btnGenerate.addEventListener('click', async () => {
+            const client = clientNameInput.value.trim();
+            if (!client) return alert("Ingresa el nombre del cliente");
+
+            btnGenerate.disabled = true;
+            try {
+                const res = await fetch('/api/keys', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${masterPassword}`
+                    },
+                    body: JSON.stringify({ clientName: client })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    resultKey.innerText = data.key;
+                    resultKey.style.display = 'block';
+                    clientNameInput.value = '';
+                    loadHistory();
+                } else {
+                    alert("Error al generar la clave");
+                }
+            } catch (e) { alert("Error de conexión"); }
+            btnGenerate.disabled = false;
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            window.location.reload();
+        });
+
+        // Permitir login con Enter
+        adminPassInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') btnLogin.click();
+        });
+    </script>
+</body>
+</html>

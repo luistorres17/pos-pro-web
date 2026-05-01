@@ -218,7 +218,7 @@
 
         // Evento Login
         btnLogin.addEventListener('click', async () => {
-            const pass = adminPassInput.value;
+            const pass = adminPassInput.value.trim();
             if (!pass) return;
 
             btnLogin.disabled = true;
@@ -228,13 +228,15 @@
             });
 
             if (res.ok) {
-                masterPassword = pass;
+                masterPassword = pass.trim();
                 loginSection.classList.add('hidden');
                 adminDashboard.style.display = 'block';
                 loadHistory();
             } else {
+                const errorData = await res.json();
+                loginError.innerText = errorData.error || 'Contraseña incorrecta';
                 loginError.style.display = 'block';
-                setTimeout(() => { loginError.style.display = 'none'; }, 3000);
+                setTimeout(() => { loginError.style.display = 'none'; }, 5000);
             }
             btnLogin.disabled = false;
         });

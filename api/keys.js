@@ -1,11 +1,17 @@
 
 export default async function handler(req, res) {
   const { ADMIN_PASSWORD, KV_REST_API_URL, KV_REST_API_TOKEN } = process.env;
+  const trimmedAdminPass = ADMIN_PASSWORD ? ADMIN_PASSWORD.trim() : null;
 
   // 1. Verificación de Autenticación
   const authHeader = req.headers.authorization;
-  if (!authHeader || authHeader !== `Bearer ${ADMIN_PASSWORD}`) {
-    return res.status(401).json({ error: 'No autorizado' });
+  
+  if (!trimmedAdminPass) {
+    return res.status(500).json({ error: 'Configuración incompleta: ADMIN_PASSWORD no definida en Vercel' });
+  }
+
+  if (!authHeader || authHeader.replace('Bearer ', '').trim() !== trimmedAdminPass) {
+    return res.status(401).json({ error: 'Contraseña incorrecta' });
   }
 
   // 2. Conexión con Vercel KV (REST API)

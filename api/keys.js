@@ -81,7 +81,7 @@ export default async function handler(req, res) {
 
       return res.status(200).json(newLicense);
     } catch (error) {
-      return res.status(500).json({ error: 'Error al guardar licencia en la base de datos' });
+      return res.status(500).json({ error: 'Error al guardar licencia en la base de datos', details: error.message });
     }
   }
 

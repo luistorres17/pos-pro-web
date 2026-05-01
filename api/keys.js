@@ -10,6 +10,10 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Configuración incompleta: ADMIN_PASSWORD no definida en Vercel' });
   }
 
+  if (!KV_REST_API_URL || !KV_REST_API_TOKEN) {
+    return res.status(500).json({ error: 'Configuración incompleta: Variables de Vercel KV (Storage) no encontradas' });
+  }
+
   if (!authHeader || authHeader.replace('Bearer ', '').trim() !== trimmedAdminPass) {
     return res.status(401).json({ error: 'Contraseña incorrecta' });
   }
@@ -34,7 +38,7 @@ export default async function handler(req, res) {
       const licenses = result.result ? JSON.parse(result.result) : [];
       return res.status(200).json(licenses);
     } catch (error) {
-      return res.status(500).json({ error: 'Error al obtener licencias' });
+      return res.status(500).json({ error: 'Error al obtener licencias', details: error.message });
     }
   }
 

@@ -145,11 +145,32 @@ function applyFeatures() {
         } else {
             adContainer.classList.remove('hidden');
             // Cargar Google AdSense solo si no es premium y no se ha cargado ya
-            if (!window.adsByGoogleLoaded) {
+            const wrapper = document.getElementById('adsense-wrapper');
+            if (wrapper && !window.adsByGoogleLoaded) {
+                // Inyectar el tag <ins> dinámicamente
+                wrapper.innerHTML = `
+                    <ins class="adsbygoogle"
+                         style="display:block; min-height: 60px;"
+                         data-ad-client="ca-pub-4453683368941401"
+                         data-ad-slot="auto"
+                         data-ad-format="horizontal"
+                         data-full-width-responsive="false"></ins>
+                `;
+
                 const script = document.createElement('script');
                 script.async = true;
                 script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4453683368941401";
                 script.crossOrigin = "anonymous";
+                script.onload = () => {
+                    // Dar un pequeño respiro para que el layout se asiente
+                    setTimeout(() => {
+                        try {
+                            (adsbygoogle = window.adsbygoogle || []).push({});
+                        } catch (e) {
+                            console.error("AdSense Error:", e);
+                        }
+                    }, 200);
+                };
                 document.head.appendChild(script);
                 window.adsByGoogleLoaded = true;
             }

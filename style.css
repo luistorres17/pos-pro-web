@@ -552,3 +552,158 @@ select {
 .light-theme select {
     background: rgba(255, 255, 255, 0.5);
 }
+
+/* --- RESPONSIVE DESIGN --- */
+
+@media (max-width: 1024px) {
+    .pos-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+        gap: 1.5rem;
+    }
+    
+    .cart-section {
+        max-height: 600px;
+    }
+    
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        overflow: auto;
+    }
+
+    .app-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100dvh;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: 65px;
+        flex-direction: row;
+        padding: 0;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 1000;
+        border-right: none;
+        border-top: 1px solid var(--glass-border);
+        background: var(--bg-sidebar);
+        backdrop-filter: blur(10px);
+    }
+
+    .logo, .sidebar-footer {
+        display: none;
+    }
+
+    .nav-links {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        justify-content: space-around;
+        align-items: stretch;
+        margin: 0;
+    }
+
+    .nav-links li {
+        flex: 1;
+        margin-bottom: 0;
+        padding: 0;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.65rem;
+        gap: 2px;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .nav-links li.active {
+        background: transparent;
+        color: var(--primary);
+        border-top: 3px solid var(--primary);
+    }
+
+    .main-content {
+        padding: 1rem;
+        padding-bottom: 80px; /* Space for bottom nav */
+    }
+
+    .flex-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .barcode-search input {
+        width: 100%;
+    }
+
+    .customer-banner {
+        margin: 0 !important;
+        padding: 0.5rem 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    #btn-remove-customer {
+        align-self: flex-end;
+    }
+
+    .ad-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 120px;
+    }
+
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        max-width: 95%;
+        margin: 10px;
+        padding: 1rem;
+    }
+
+    .search-sale {
+        flex-direction: column;
+        max-width: 100%;
+    }
+
+    .table-container {
+        margin: 0 -1rem;
+        padding: 0 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .products-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+    }
+    
+    .product-card {
+        padding: 0.8rem;
+    }
+
+    .product-card h3 {
+        font-size: 0.9rem;
+    }
+    
+    .product-card .price {
+        font-size: 1rem;
+    }
+
+    .nav-links li {
+        font-size: 0.6rem;
+    }
+}
